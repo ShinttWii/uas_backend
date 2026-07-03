@@ -1,0 +1,543 @@
+{
+  "info": {
+    "_postman_id": "bagverse-api-2024",
+    "name": "BagVerse API",
+    "description": "Koleksi endpoint API untuk aplikasi BagVerse - Online Store Tas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Budi Santoso\",\n  \"email\": \"budi@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Daftar akun baru sebagai user biasa"
+          }
+        },
+        {
+          "name": "Login (User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) {",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"budi@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login sebagai user biasa. Token otomatis tersimpan ke variabel {{token}}"
+          }
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) {",
+                  "  pm.collectionVariables.set('admin_token', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@bagverse.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login sebagai admin. Token otomatis tersimpan ke variabel {{admin_token}}"
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "profile"]
+            },
+            "description": "Ambil profil user yang sedang login (butuh token)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"]
+            },
+            "description": "Ambil semua produk aktif (public)"
+          }
+        },
+        {
+          "name": "Get Products - Search & Filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/products?search=tas&category=Wanita&sort=cheap&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "search", "value": "tas", "description": "Cari berdasarkan nama/deskripsi" },
+                { "key": "category", "value": "Wanita", "description": "Filter: Pria | Wanita | Unisex" },
+                { "key": "sort", "value": "cheap", "description": "Sort: default | cheap | expensive | rating | newest" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Ambil produk dengan search, filter kategori, sort harga, dan pagination"
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "1"]
+            },
+            "description": "Ambil detail satu produk berdasarkan ID"
+          }
+        },
+        {
+          "name": "[Admin] Get All Products (incl. nonaktif)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/products/admin/all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "admin", "all"]
+            },
+            "description": "Ambil semua produk termasuk yang nonaktif (Admin only)"
+          }
+        },
+        {
+          "name": "[Admin] Add Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tas Kulit Premium\",\n  \"price\": 450000,\n  \"category\": \"Wanita\",\n  \"rating\": 4.8,\n  \"image\": \"https://example.com/tas-kulit.jpg\",\n  \"description\": \"Tas kulit asli berkualitas tinggi\",\n  \"stock\": 25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"]
+            },
+            "description": "Tambah produk baru. category harus: Pria | Wanita | Unisex"
+          }
+        },
+        {
+          "name": "[Admin] Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tas Kulit Premium - Updated\",\n  \"price\": 500000,\n  \"stock\": 20,\n  \"is_active\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "1"]
+            },
+            "description": "Update data produk (partial update, field yang tidak disertakan tidak berubah)"
+          }
+        },
+        {
+          "name": "[Admin] Delete Product (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "1"]
+            },
+            "description": "Soft delete produk (set is_active = 0, data tidak benar-benar dihapus)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Checkout (Buat Pesanan)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"name\": \"Tas Kulit Premium\",\n      \"qty\": 2,\n      \"price\": 450000,\n      \"image\": \"https://example.com/tas-kulit.jpg\"\n    },\n    {\n      \"product_id\": 3,\n      \"name\": \"Tas Selempang Pria\",\n      \"qty\": 1,\n      \"price\": 275000,\n      \"image\": \"https://example.com/tas-selempang.jpg\"\n    }\n  ],\n  \"shipping_name\": \"Budi Santoso\",\n  \"shipping_phone\": \"081234567890\",\n  \"shipping_address\": \"Jl. Merdeka No. 10, Jakarta Pusat\",\n  \"shipping_courier\": \"J&T Reg\",\n  \"shipping_cost\": 15000,\n  \"payment_method\": \"QRIS\",\n  \"subtotal\": 1175000,\n  \"total_price\": 1190000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/checkout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "checkout"]
+            },
+            "description": "Buat pesanan baru dan kirim notifikasi WhatsApp ke owner"
+          }
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders/my",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "my"]
+            },
+            "description": "Ambil riwayat pesanan milik user yang sedang login"
+          }
+        },
+        {
+          "name": "Get Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders/BVR-1234567890",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "BVR-1234567890"]
+            },
+            "description": "Ambil detail pesanan berdasarkan order_id. Hanya bisa diakses oleh pemilik order atau admin"
+          }
+        },
+        {
+          "name": "[Admin] Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"],
+              "query": [
+                { "key": "status", "value": "pending", "description": "Filter: pending | processing | shipped | delivered | cancelled", "disabled": true },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Ambil semua pesanan. Bisa difilter berdasarkan status"
+          }
+        },
+        {
+          "name": "[Admin] Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"processing\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/BVR-1234567890/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "BVR-1234567890", "status"]
+            },
+            "description": "Update status pesanan. Valid: pending | processing | shipped | delivered | cancelled"
+          }
+        },
+        {
+          "name": "[Admin] Get Sales Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders/admin/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "admin", "stats"]
+            },
+            "description": "Statistik penjualan: total revenue, total orders, items sold, avg order value, trend 7 hari"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "Get Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/wishlist",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wishlist"]
+            },
+            "description": "Ambil semua produk di wishlist user yang sedang login"
+          }
+        },
+        {
+          "name": "Add to Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/wishlist",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wishlist"]
+            },
+            "description": "Tambah produk ke wishlist. Akan error 409 jika produk sudah ada"
+          }
+        },
+        {
+          "name": "Remove from Wishlist",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/wishlist/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wishlist", "1"]
+            },
+            "description": "Hapus produk dari wishlist berdasarkan product_id"
+          }
+        },
+        {
+          "name": "Toggle Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/wishlist/toggle",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wishlist", "toggle"]
+            },
+            "description": "Toggle: tambah ke wishlist jika belum ada, hapus jika sudah ada. Response berisi field 'action': added | removed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "[Admin] Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Ambil semua user terdaftar (Admin only)"
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            },
+            "description": "Ambil detail user. Hanya bisa diakses oleh user itu sendiri atau admin"
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Budi Santoso Updated\",\n  \"password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            },
+            "description": "Update nama atau password. Hanya bisa dilakukan oleh user itu sendiri"
+          }
+        },
+        {
+          "name": "[Admin] Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "2"]
+            },
+            "description": "Hapus user permanen (Admin only). Tidak bisa menghapus akun admin sendiri"
+          }
+        }
+      ]
+    },
+    {
+      "name": "General",
+      "item": [
+        {
+          "name": "Root / API Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Info API: nama, versi, daftar endpoint"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Cek apakah server berjalan normal"
+          }
+        }
+      ]
+    }
+  ]
+}
